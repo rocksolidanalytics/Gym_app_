@@ -1,4 +1,4 @@
-const CACHE = "training-v1";
+const CACHE = "training-v2";
 
 const CORE = [
   "./",
@@ -29,6 +29,25 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+
+  const isPage =
+    e.request.mode === "navigate" ||
+    /\.(html|webmanifest)$/.test(new URL(e.request.url).pathname);
+
+  // The page itself is edited often, so always try the network first and
+  // fall back to cache only when offline. Libraries never change, so those
+  // come from cache first and stay fast.
+  if (isPage) {
+    e.respondWith(
+      fetch(e.request).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(e.request, copy).catch(() => null));
+        return res;
+      }).catch(() => caches.match(e.request).then((hit) => hit || caches.match("./index.html")))
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then((hit) => {
       if (hit) return hit;
