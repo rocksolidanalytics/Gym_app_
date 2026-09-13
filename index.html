@@ -193,60 +193,67 @@ const SCHEME = {
 const D1_COND = {
   1: "4 rounds: 400 m run, 15 burpees",
   2: "4 rounds: 400 m run, 18 burpees",
-  3: "5 rounds: 400 m run, 18 burpees",
+  3: "5 rounds: 400 m run, 15 burpees",
   4: "3 rounds: 400 m run, 10 burpees, hold back",
-  5: "4 rounds: 600 m run, 15 burpees, 20 walking lunges",
-  6: "5 rounds: 600 m run, 15 burpees, 20 walking lunges",
-  7: "4 rounds: 800 m run, 18 burpees, 20 sandbag lunges",
-  8: "3 rounds: 600 m run, 10 burpees, hold back",
-  9: "3 rounds: 1 km run, 18 burpees, 50 m sled push",
-  10: "4 rounds: 1 km run, 18 burpees, 50 m sled push",
-  11: "Half sim: 4 x 1 km run, station after each (ski, sled push, burpee jumps, row)",
+  5: "4 rounds: 500 m run, 15 burpees, 20 walking lunges",
+  6: "4 rounds: 600 m run, 15 burpees, 20 walking lunges",
+  7: "3 rounds: 800 m run, 18 burpees, 20 sandbag lunges",
+  8: "3 rounds: 500 m run, 10 burpees, hold back",
+  9: "3 rounds: 800 m run, 15 burpees, 50 m sled push",
+  10: "3 rounds: 1 km run, 15 burpees, 50 m sled push",
+  11: "Half sim: 3 x 1 km run, station after each (ski, sled push, burpee broad jumps)",
   12: "Test piece: 1 km run, 35 burpees, 1 km run"
 };
 
 const D2_MAIN = {
-  1: "5 x 1000 m row, 2 min easy between",
-  2: "6 x 1000 m row, 2 min easy between",
-  3: "4 x 1500 m row, 3 min easy between",
-  4: "20 min steady row, nose breathing only",
-  5: "5 x 1000 m ski, 90 s between",
-  6: "6 x 1000 m ski, 90 s between",
-  7: "3 rounds: 1000 m row then 1000 m ski, 3 min between",
-  8: "20 min steady bike, conversational",
+  1: "4 x 1000 m row, 2 min easy between",
+  2: "5 x 1000 m row, 2 min easy between",
+  3: "3 x 1500 m row, 3 min easy between",
+  4: "15 min steady row, nose breathing only",
+  5: "4 x 1000 m ski, 90 s between",
+  6: "5 x 1000 m ski, 90 s between",
+  7: "2 rounds: 1000 m row then 1000 m ski, 3 min between",
+  8: "15 min steady bike, conversational",
   9: "4 x 1 km run at race pace, 2 min between",
   10: "5 x 1 km run at race pace, 2 min between",
-  11: "3 rounds: 1 km run then 1000 m row at race pace",
+  11: "2 rounds: 1 km run then 1000 m row at race pace",
   12: "2 x 1000 m row for time, full recovery between"
 };
 
 const D2_STATIONS = {
-  base: "3 rounds: 250 m ski, 100 m farmers carry, 15 burpee broad jumps",
-  build: "4 rounds: 500 m ski, 100 m farmers carry, 20 burpee broad jumps, 20 sandbag lunges",
-  peak: "4 rounds: 500 m ski, 50 m sled pull, 20 burpee broad jumps, 100 m farmers carry"
+  base: "3 rounds: 250 m ski, 50 m sled push, 15 burpee broad jumps",
+  build: "3 rounds: 500 m ski, 50 m sled push, 50 m sled pull, 20 burpee broad jumps",
+  peak: "3 rounds: 500 m ski, 50 m sled pull, 20 burpee broad jumps, 100 m farmers carry"
 };
 
 const D3_FINISHER = {
-  base: "8 min EMOM: odd minute 10 burpees, even minute 15 kettlebell swings",
-  build: "10 min EMOM: odd minute 12 burpees, even minute 18 kettlebell swings",
-  peak: "12 min EMOM: 12 burpees, then 20 kettlebell swings, then 50 m farmers carry"
+  base: "6 min EMOM: odd minute 10 burpees, even minute 15 kettlebell swings",
+  build: "8 min EMOM: odd minute 12 burpees, even minute 18 kettlebell swings",
+  peak: "8 min EMOM: 12 burpees, then 20 kettlebell swings"
 };
+
+function estimateMins(week, day) {
+  if (SCHEME[week].easy) return 35;
+  if (day === 1) return blockOf(week) === "peak" ? 52 : 48;
+  if (day === 2) return 47;
+  return 48;
+}
 
 function buildSession(week, day) {
   const sc = SCHEME[week];
   const blk = blockOf(week);
   const liftLabel = sc.sets + " x " + sc.reps + " at RPE " + sc.rpe;
+  const mins = estimateMins(week, day);
 
   if (day === 1) {
     return {
       title: "Legs and legs again",
+      mins: mins,
       items: [
-        { id: "wu1", kind: "note", name: "Warm up", detail: "8 min bike, then ankles, hips, two light squat sets" },
+        { id: "wu1", kind: "note", name: "Warm up", detail: "5 min bike, then ankles and hips, two ramp up squat sets" },
         { id: "squat", kind: "lift", name: "Back squat", detail: liftLabel, sets: sc.sets },
-        { id: "rdl", kind: "lift", name: "Romanian deadlift", detail: sc.easy ? "2 x 8" : "3 x 8", sets: sc.easy ? 2 : 3 },
-        { id: "lunge", kind: "lift", name: "Walking lunge", detail: "3 x 20 steps, dumbbells", sets: 3 },
-        { id: "cond1", kind: "work", name: "Conditioning", detail: D1_COND[week] },
-        { id: "core1", kind: "note", name: "Core", detail: "3 x 12 hanging knee raise, slow down" }
+        { id: "rdl", kind: "lift", name: "Romanian deadlift", detail: (sc.easy ? "2 x 8" : "3 x 8") + ", straight into 12 hanging knee raises, no rest between", sets: sc.easy ? 2 : 3 },
+        { id: "cond1", kind: "work", name: "Conditioning", detail: D1_COND[week] }
       ]
     };
   }
@@ -254,27 +261,27 @@ function buildSession(week, day) {
   if (day === 2) {
     return {
       title: "Engine",
+      mins: mins,
       items: [
-        { id: "wu2", kind: "note", name: "Warm up", detail: "8 min easy bike building to a sweat, then 3 x 20 s hard" },
+        { id: "wu2", kind: "note", name: "Warm up", detail: "5 min easy bike, then 3 x 20 s hard" },
         { id: "intervals", kind: "work", name: "Main intervals", detail: D2_MAIN[week] },
         { id: "stations", kind: "work", name: "Stations", detail: D2_STATIONS[blk] },
-        { id: "cd2", kind: "note", name: "Cool down", detail: "12 min zone 2 bike, keep the nose breathing" }
+        { id: "cd2", kind: "note", name: "Cool down", detail: "5 min easy spin, nose breathing" }
       ]
     };
   }
 
   return {
     title: "Push, pull, pump",
+    mins: mins,
     items: [
-      { id: "wu3", kind: "note", name: "Warm up", detail: "5 min row, band pull aparts, two light press sets" },
+      { id: "wu3", kind: "note", name: "Warm up", detail: "5 min row, band pull aparts, two ramp up press sets" },
       { id: "bench", kind: "lift", name: "Bench press", detail: liftLabel, sets: sc.sets },
-      { id: "pull", kind: "lift", name: "Weighted pull up or lat pulldown", detail: "4 x 8", sets: 4 },
-      { id: "sled", kind: "work", name: "Sled", detail: "6 rounds: 25 m push, 25 m pull, walk back" },
-      { id: "ohp", kind: "lift", name: "Dumbbell shoulder press", detail: "3 x 10", sets: 3 },
-      { id: "dbrow", kind: "lift", name: "Single arm dumbbell row", detail: "3 x 10 each side", sets: 3 },
-      { id: "curl", kind: "lift", name: "Incline curl", detail: "3 x 12", sets: 3 },
-      { id: "raise", kind: "lift", name: "Lateral raise", detail: "3 x 15", sets: 3 },
-      { id: "arms", kind: "note", name: "Triceps", detail: "3 x 15 cable pushdown, last set to failure" },
+      { id: "pull", kind: "lift", name: "Weighted pull up or lat pulldown", detail: "3 x 8, alternate sets with the shoulder press below", sets: 3 },
+      { id: "ohp", kind: "lift", name: "Dumbbell shoulder press", detail: "3 x 10, alternate sets with the pull ups, no extra rest", sets: 3 },
+      { id: "curl", kind: "lift", name: "Incline curl", detail: "3 x 12, first of three arm movements run back to back", sets: 3 },
+      { id: "raise", kind: "lift", name: "Lateral raise", detail: "3 x 15, straight after the curls", sets: 3 },
+      { id: "arms", kind: "note", name: "Triceps", detail: "3 x 15 cable pushdown, straight after the raises, then rest 90 s and repeat" },
       { id: "fin3", kind: "work", name: "Finisher", detail: D3_FINISHER[blk] }
     ]
   };
@@ -283,11 +290,9 @@ function buildSession(week, day) {
 const LIFT_NAMES = {
   squat: "Back squat",
   rdl: "Romanian deadlift",
-  lunge: "Walking lunge",
   bench: "Bench press",
   pull: "Pull up",
   ohp: "Shoulder press",
-  dbrow: "Dumbbell row",
   curl: "Incline curl",
   raise: "Lateral raise"
 };
@@ -527,6 +532,7 @@ function App() {
           <div className="sesstitle">{session.title}</div>
           <div className="blocktag">
             {blockName[blockOf(week)]} block, day {day} of 3{SCHEME[week].easy ? ", lighter week" : ""}
+            <span style={{ display: "block", marginTop: 2 }}>about {session.mins} min</span>
           </div>
         </div>
       </header>
